@@ -7,8 +7,9 @@ import decimal
 
 from xml.dom.minidom import parseString
 
-import wrappers.ftp as ftp
-import wrappers.mysql as db
+import wrappers.myftp as ftp
+import wrappers.mydb as db
+import wrappers.myemail as mail
 import rtm.config.baseconfig as rtmconfig
 from rtm.orderentry import factory
 from rtm.orderentry import portfolio
@@ -30,7 +31,8 @@ def main():
         cache_open_orders()
         create_new_orders(updates)
         o_cache.process_orders(o_cache.group_orders(), t_cache)
-        process_orphans(o_cache.orphans)
+        #process_orphans(o_cache.orphans)
+        send_report(config)
     else:
         logging.info("No new trades for today")
 
@@ -148,6 +150,13 @@ def create_new_orders(data):
             action = set_action_id(line.getAttribute('buySell'))
             order = portfolio.Order(dateTime,oid,i_cache.cache[desc],qty,price,comm,otype,action)
             o_cache.add_obj(oid, order)
+
+
+def send_report(cfg):
+    mailto = 'dgreene@raptorfinllc.com'
+    mailsub = "Processed trades for {}".format(cfg['today'])
+    conn = mail.init_mail(cfg['mhost'], cfg['muser'], cfg['mpwd'])
+    mail.send_email(conn, mailto, cfg['muser'], mailsub, 'Test Message')
 
 
 def process_orphans(orders):

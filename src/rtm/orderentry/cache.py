@@ -2,7 +2,7 @@
 import logging
 from collections import defaultdict
 
-import wrappers.mysql as tmdb
+import wrappers.mydb as tmdb
 import rtm.orderentry as oe
 import rtm.orderentry.mappings as mappings
 
