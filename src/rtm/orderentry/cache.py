@@ -6,6 +6,7 @@ import wrappers.mysql as tmdb
 import rtm.orderentry as oe
 import rtm.orderentry.mappings as mappings
 
+LOGGER = logging.getLogger(__name__)
 
 class BaseCache():
     def __init__(self, dbconn):
@@ -17,7 +18,7 @@ class BaseCache():
 
     def add_obj(self, key, val, persist=False):
         self.cache[key] = val
-        logging.info("Added <key=%s, val=%s> to cache", key, val)
+        LOGGER.info("Added <key=%s, val=%s> to cache", key, val)
         if persist:
             self.insert_obj(val)
 
@@ -53,7 +54,7 @@ class TradeCache(BaseCache):
                                              trade.type,
                                              trade.status)
         trade.id = tmdb.db_modify(self.dbconn, sql)
-        logging.info("Inserted %s to Trades", trade)
+        LOGGER.info("Inserted %s to Trades", trade)
 
 
     def process_open_trade(self, name, action, orders):
@@ -82,7 +83,7 @@ class TradeCache(BaseCache):
         sql = ('UPDATE Trades set statusTypeId = {0} '
                'WHERE id = {1}').format(mappings.CLOSED_TRADE_ID, id_)
         ins = tmdb.db_modify(self.dbconn, sql)
-        logging.info("Closed tradeId=%s", id_)
+        LOGGER.info("Closed tradeId=%s", id_)
         return ins
 
 
@@ -106,7 +107,7 @@ class OrderCache(BaseCache):
                                           order.commission, order.type,
                                           order.action, order.tradeId)
         order.id = tmdb.db_modify(self.dbconn, sql)
-        logging.info("Inserted %s to Orders", order)
+        LOGGER.info("Inserted %s to Orders", order)
 
 
     def group_orders(self):
@@ -160,4 +161,4 @@ class InstrumentCache(BaseCache):
                                           instr.sym,
                                           instr.type)
         instr.id = tmdb.db_modify(self.dbconn, sql)
-        logging.info("Inserted %s to Instruments", instr)
+        LOGGER.info("Inserted %s to Instruments", instr)
